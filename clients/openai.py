@@ -3,7 +3,7 @@ from openai import OpenAI
 from config import (
     openai_base_url,
     openai_api_key,
-    openai_model,
+    openai_chat_model,
 )
 
 # OpenAI config
@@ -16,7 +16,7 @@ openai_client = OpenAI(
 def chat_with_ai(user_text):
     # Generate completion using OpenAI
     completion = openai_client.chat.completions.create(
-        model=openai_model,
+        model=openai_chat_model,
         messages=[
             {
                 "role": "user",

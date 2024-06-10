@@ -8,4 +8,4 @@ line_channel_secret = getenv("LINE_CHANNEL_SECRET")
 
 openai_base_url = getenv("OPENAI_BASE_URL")
 openai_api_key = getenv("OPENAI_API_KEY")
-openai_model = getenv("OPENAI_MODEL")
+openai_chat_model = getenv("OPENAI_CHAT_MODEL")
