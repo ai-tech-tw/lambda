@@ -1,0 +1,7 @@
+python-dotenv
+Flask
+Flask-SQLAlchemy
+gunicorn
+line-bot-sdk
+openai
+PyYAML
