@@ -17,7 +17,11 @@ To install the dependencies, run the following command:
 pip install -r requirements.txt
 ```
 
-## Run the development server
+## Run
+
+Depending on the environment, you can run the application using the following commands:
+
+### Development
 
 Run the application using the following command with the debug mode enabled and auto-reload:
 
@@ -25,7 +29,7 @@ Run the application using the following command with the debug mode enabled and 
 flask run --debug --reload
 ```
 
-### Run the production server
+### Production
 
 Run the application using the following command with the gunicorn server for better performance:
 
