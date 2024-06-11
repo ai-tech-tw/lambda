@@ -6,7 +6,7 @@ A simple chat bot based on chat completion API.
 
 It's required to have the following installed on your machine:
 
-- python 3.7
+- python >= 3.7
 - pip
 
 ## Setup
