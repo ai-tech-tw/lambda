@@ -1,19 +1,14 @@
+from asyncio import run as asyncio_run
+
 from flask import Flask, request, abort
 
+from clients.line import handler, line_bot_api
 from clients.openai import chat_with_ai
+from utils.markdown import strip_markdown
+from utils.response import strip_thinking
 
-from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
-
-from config import (
-    line_channel_access_token,
-    line_channel_secret,
-)
-
-# LINE Messaging API config
-line_bot_api = LineBotApi(line_channel_access_token)
-handler = WebhookHandler(line_channel_secret)
 
 # Flask config
 app = Flask(__name__)
@@ -56,8 +51,14 @@ def handle_message(event):
     # Remove the prefix
     user_text = user_text.lstrip("lambda")
 
+    # Identify the conversation
+    user_id = getattr(event.source, "user_id", None)
+
     # Generate response
-    ai_text = chat_with_ai(user_text)
+    result = asyncio_run(chat_with_ai(user_id, user_id, user_text))
+
+    # Clean up the generated response
+    ai_text = strip_markdown(strip_thinking(result["answer"]))
 
     # Check completion
     if not ai_text:
