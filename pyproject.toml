@@ -1,0 +1,15 @@
+[project]
+name = "lambda"
+version = "0.1.0"
+description = "A simple chat bot based on chat completion API"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "flask",
+    "flask-sqlalchemy",
+    "gunicorn",
+    "line-bot-sdk",
+    "openai",
+    "python-dotenv",
+    "pyyaml",
+]

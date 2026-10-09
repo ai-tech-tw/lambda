@@ -6,15 +6,15 @@ A simple chat bot based on chat completion API.
 
 It's required to have the following installed on your machine:
 
-- python >= 3.7
-- pip
+- python >= 3.9
+- uv
 
 ## Setup
 
 To install the dependencies, run the following command:
 
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
 ## Run
@@ -26,7 +26,7 @@ Depending on the environment, you can run the application using the following co
 Run the application using the following command with the debug mode enabled and auto-reload:
 
 ```bash
-flask run --debug --reload
+uv run flask run --debug --reload
 ```
 
 ### Production
@@ -34,5 +34,5 @@ flask run --debug --reload
 Run the application using the following command with the gunicorn server for better performance:
 
 ```bash
-gunicorn -w 4 app:app
+uv run gunicorn -w 4 app:app
 ```
