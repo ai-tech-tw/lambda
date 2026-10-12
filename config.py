@@ -3,12 +3,14 @@
 [正體中文]
 本模組負責在應用程式啟動時載入 `.env` 檔案中的環境變數，並提供給專案其他模組使用。
 專為初學者設計，集中管理所有 API 金鑰、端點與運作參數，避免敏感資訊硬編碼在原始碼中。
+支援 OpenAI、NVIDIA NIM（NVIDIA Inference Microservices）或 Nymph 社群免費轉換閘道。
 
 [English]
 This module is responsible for loading environment variables from the `.env` file upon
 application startup and providing them to other modules throughout the project.
 Centralizing API credentials, endpoints, and operational parameters helps prevent
 hardcoding secrets into the source code.
+Supports OpenAI, NVIDIA NIM (NVIDIA Inference Microservices), or the Nymph community gateway.
 """
 
 from os import getenv
@@ -30,18 +32,25 @@ line_channel_access_token = getenv("LINE_CHANNEL_ACCESS_TOKEN")
 line_channel_secret = getenv("LINE_CHANNEL_SECRET")
 
 # ==============================================================================
-# OpenAI / 相容模型服務設定 / OpenAI & Model Provider Credentials
+# 模型供應商設定 / Model Provider Credentials
+# 支援 OpenAI、NVIDIA NIM 或 Nymph 相容閘道
 # ==============================================================================
-# [正體中文] OpenAI API 的伺服器基礎端點，可自訂為相容閘道（例如 Nymph 閘道、自建反向代理）
-# [English] Base URL for the OpenAI API; can be pointed to compatible gateways (e.g., Nymph, proxies)
+# [正體中文] API 伺服器基礎端點：
+# - 官方 OpenAI: https://api.openai.com/v1
+# - NVIDIA NIM: https://integrate.api.nvidia.com/v1
+# - Nymph 免費閘道: https://web-tech.tw/recv/openai/v1
+# [English] Base URL for the model provider API:
+# - Official OpenAI: https://api.openai.com/v1
+# - NVIDIA NIM: https://integrate.api.nvidia.com/v1
+# - Nymph Community Gateway: https://web-tech.tw/recv/openai/v1
 openai_base_url = getenv("OPENAI_BASE_URL")
 
-# [正體中文] 模型供應商的 API 金鑰
-# [English] API key for authenticating with the model provider
+# [正體中文] 模型供應商的 API 金鑰（OpenAI Key、NVIDIA NIM nvapi-...、或 Nymph 試用憑證）
+# [English] API key for authenticating with the model provider (OpenAI key, NVIDIA NIM nvapi key, or Nymph trial token)
 openai_api_key = getenv("OPENAI_API_KEY")
 
-# [正體中文] 使用的對話模型名稱（例如 gpt-3.5-turbo、gpt-4o 等）
-# [English] Name of the chat completion model to use (e.g., gpt-3.5-turbo, gpt-4o)
+# [正體中文] 使用的對話模型名稱（例如 gpt-3.5-turbo、openai/gpt-oss-20b、meta/llama-3.3-70b-instruct、auto 等）
+# [English] Name of the chat completion model to use (e.g., gpt-3.5-turbo, openai/gpt-oss-20b, auto)
 openai_chat_model = getenv("OPENAI_CHAT_MODEL")
 
 # [正體中文] 自訂系統提示詞覆寫值（若未設定則在 prompts.py 中使用預設提示詞）

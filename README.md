@@ -8,6 +8,15 @@
 
 ---
 
+## Project Status: Feature-Frozen
+
+> [!NOTE]
+> **This project (lambda) serves as a concise, beginner-friendly starter and reference template for learning LLM Agents, Tool Calling, and LINE Messaging API integration. Its feature set is now complete and declared Feature-Frozen.**
+>
+> To preserve its lightweight, clean, and easily readable codebase, no additional features will be added to this bot. If you are interested in exploring larger-scale AI gateways, inference infrastructure, or protocol translation, we invite you to collaborate on the **[Nymph](https://github.com/web-tech-tw)** ecosystem!
+
+---
+
 ## Overview
 
 **lambda** is an intelligent LINE bot built with Python, Flask, and OpenAI's API (supporting both Responses API and Function Calling).
@@ -23,6 +32,7 @@ This project serves as an accessible, beginner-friendly starter for learning **L
 ## Features
 
 - 🤖 **Autonomous Agent Loop**: Multi-turn tool execution loop with support for both native function calls and text-advised fallback.
+- ⚡ **Multi-Provider Support (including NVIDIA NIM & Nymph)**: Seamlessly connects with high-performance NVIDIA NIM microservices, the Nymph community free gateway, or the official OpenAI API.
 - 🔍 **Real-Time Web Search**: Powered by the [Tavily Search API](https://tavily.com/) for up-to-date web results.
 - 📚 **Academic Paper Search**: Queries [arXiv](https://arxiv.org/) for papers by title, abstract, author, or category.
 - 🌐 **Web Scraping & Extraction**: Extracts readable text from URLs using Scrapy & Requests, with depth crawling and regex pattern filtering.
@@ -66,7 +76,7 @@ flowchart TD
 
     subgraph ExternalServices["External Cloud Services"]
         LinePlatform["LINE Messaging API Platform"]
-        LLMServer["OpenAI / Compatible Endpoint"]
+        LLMServer["OpenAI / NVIDIA NIM / Nymph Gateway"]
         TavilyAPI["Tavily Search API"]
         ArxivAPI["arXiv API"]
         Websites["Target Webpages"]
@@ -112,7 +122,7 @@ sequenceDiagram
     participant LINE as LINE Platform
     participant Flask as Flask Webhook (/callback)
     participant Agent as AI Agent (chat_with_ai)
-    participant LLM as OpenAI Model API
+    participant LLM as Model API (NIM / Nymph / OpenAI)
     participant Tools as Built-in Tools
 
     User->>LINE: Send message (e.g. "lambda search latest quantum computing papers")
@@ -149,7 +159,10 @@ Before getting started, make sure you have the following installed on your syste
   powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
   ```
 - **LINE Messaging API Channel**: Create a channel at the [LINE Developers Console](https://developers.line.biz/) to get your credentials.
-- **OpenAI API Key**: Or an OpenAI-compatible endpoint (such as Nymph Gateway).
+- **Model Provider Credentials (Choose one)**:
+  1. **NVIDIA NIM** (Recommended for high-performance inference)
+  2. **Nymph Community Free Gateway** (Best for zero-cost learners)
+  3. **Official OpenAI API**
 - **Tavily API Key**: Required for web searches (sign up for free at [Tavily](https://tavily.com/)).
 
 ---
@@ -168,12 +181,35 @@ Open `.env` in your editor and configure the following variables:
 | --- | --- | --- | --- |
 | `LINE_CHANNEL_ACCESS_TOKEN` | Long-lived channel access token from LINE Developers | From LINE Developers Console | **Yes** |
 | `LINE_CHANNEL_SECRET` | Channel secret from LINE Developers | From LINE Developers Console | **Yes** |
-| `OPENAI_BASE_URL` | Base URL for OpenAI API or compatible gateway | `https://api.openai.com/v1` | Optional |
-| `OPENAI_API_KEY` | API Key for model provider | `sk-...` | **Yes** |
-| `OPENAI_CHAT_MODEL` | Chat model identifier | `gpt-3.5-turbo` | Optional |
+| `OPENAI_BASE_URL` | Base URL for model provider (supports NIM, Nymph, OpenAI) | `https://api.openai.com/v1` | Optional |
+| `OPENAI_API_KEY` | API Key for model provider | `sk-...` / `nvapi-...` / `nymph ...` | **Yes** |
+| `OPENAI_CHAT_MODEL` | Chat model identifier | `gpt-3.5-turbo` / `openai/gpt-oss-20b` | Optional |
 | `OPENAI_SYSTEM_PROMPT` | Custom system prompt override | `None` (uses built-in prompt) | Optional |
 | `TAVILY_API_KEY` | API Key for Tavily Search | `tvly-...` | **Yes for search** |
-| `AGENT_TIMEOUT_SECONDS` | Maximum timeout for agent execution in seconds | `60` | Optional |
+| `AGENT_TIMEOUT_SECONDS` | Agent execution timeout in seconds | `60` | Optional |
+
+### Model Provider Configurations
+
+#### Option 1: NVIDIA NIM (High-Performance Inference Microservices)
+```ini
+OPENAI_BASE_URL="https://integrate.api.nvidia.com/v1"
+OPENAI_API_KEY="nvapi-your-key-here"
+OPENAI_CHAT_MODEL="openai/gpt-oss-20b"
+```
+
+#### Option 2: Nymph Community Gateway (Free for Learning & Testing)
+```ini
+OPENAI_BASE_URL="https://web-tech.tw/recv/openai/v1"
+OPENAI_API_KEY="nymph zr3Pjc68z4bOtw=="
+OPENAI_CHAT_MODEL="auto"
+```
+
+#### Option 3: Official OpenAI API
+```ini
+OPENAI_BASE_URL="https://api.openai.com/v1"
+OPENAI_API_KEY="sk-your-openai-api-key"
+OPENAI_CHAT_MODEL="gpt-3.5-turbo"
+```
 
 ---
 
@@ -261,6 +297,24 @@ lambda/
 ├── .env.sample         # Sample environment variable template
 └── LICENSE             # MIT Open Source License
 ```
+
+---
+
+## 🤝 Co-maintaining & Supporting Nymph
+
+**lambda** is built alongside the **[Nymph](https://github.com/web-tech-tw)** open-source initiative driven by the Taiwan Web Technology Promotion Organization (Web-Tech-TW / AI-Tech-TW).
+
+### What is Nymph?
+Nymph is a community-driven intelligent consultant service and model conversion infrastructure. To eliminate economic hurdles for students and indie developers, Nymph offers a free OpenAI-compatible gateway powered by cutting-edge inference microservices including **NVIDIA NIM**, enabling access to powerful open models without upfront costs.
+
+### Join Us in Maintaining Nymph!
+Because **lambda's feature set is now frozen**, all further backend expansion, provider routing, proxy conversions, and microservice infrastructure will continue to evolve in the Nymph ecosystem!
+
+We warmly welcome developers to contribute and maintain Nymph together:
+- 🌐 **[ai-tech-tw/ironnect](https://github.com/ai-tech-tw/ironnect)**: RESTful LLM gateway and protocol conversion service.
+- 🛠️ **[web-tech-tw/nymph-stack](https://github.com/web-tech-tw/nymph-stack)**: Infrastructure as Code (IaC) deployment and containerized service stack.
+- 🧪 **[Online Demo](https://ai.web-tech.tw/openai)**: Test Nymph model endpoints directly in your browser.
+- 💬 **[Join LINE OpenChat ✨](https://web-tech.tw/ai)**: Chat with fellow developers, share feedback, and contribute.
 
 ---
 
