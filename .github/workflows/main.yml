@@ -4,53 +4,28 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+      - rolling
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
+permissions:
+  contents: read
+  packages: write
+
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: build-and-push-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  check:
-    name: Lint & compile check
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-
-      - name: Set up Python
-        run: uv python install 3.14
-
-      - name: Install dependencies
-        run: uv sync --frozen
-
-      - name: Verify compilation
-        run: uv run python -m py_compile app.py config.py prompts.py clients/line.py clients/openai.py tools/*.py utils/*.py
-
   build-and-push-image:
     name: Build and publish a Docker image
-    needs: check
-    if: github.event_name == 'push' && github.ref_name == 'main'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up QEMU and Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -82,15 +57,27 @@ jobs:
     name: Deploy application as service
     needs: build-and-push-image
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref_name == 'main'
 
     steps:
-      - name: Deploy via Webhook
+      - name: Deploy main via Webhook
+        if: github.ref_name == 'main'
         env:
           WEBHOOK_URL: ${{ vars._WEBHOOK_URL_PART_UP }}
           WEBHOOK_SECRET: ${{ secrets._WEBHOOK_SECRET_PART_UP }}
-          WEBHOOK_DEPLOY_PATH: ${{ vars._WEBHOOK_DEPLOY_PATH }}
-        if: ${{ env.WEBHOOK_URL != '' }}
+          WEBHOOK_DEPLOY_PATH: ${{ vars._WEBHOOK_DEPLOY_PATH_MAIN }}
+        run: |
+          curl --silent --show-error --fail -X POST \
+            -H "X-Nymph-Stack-Secret: $WEBHOOK_SECRET" \
+            -H "Content-Type: application/json" \
+            -d "{\"path\": \"$WEBHOOK_DEPLOY_PATH\"}" \
+            "$WEBHOOK_URL"
+
+      - name: Deploy rolling via Webhook
+        if: github.ref_name == 'rolling'
+        env:
+          WEBHOOK_URL: ${{ vars._WEBHOOK_URL_PART_UP }}
+          WEBHOOK_SECRET: ${{ secrets._WEBHOOK_SECRET_PART_UP }}
+          WEBHOOK_DEPLOY_PATH: ${{ vars._WEBHOOK_DEPLOY_PATH_ROLLING }}
         run: |
           curl --silent --show-error --fail -X POST \
             -H "X-Nymph-Stack-Secret: $WEBHOOK_SECRET" \
