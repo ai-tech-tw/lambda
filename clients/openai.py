@@ -63,9 +63,9 @@ client = AsyncOpenAI(
     api_key=openai_api_key,
 )
 
-# [正體中文] 模型名稱與系統提示詞設定，若環境變數未提供則使用預設值
-# [English] Model name and system prompt configuration, falling back to sensible defaults
-MODEL = openai_chat_model or "gpt-3.5-turbo"
+# [正體中文] 模型名稱與系統提示詞設定，若環境變數未提供則使用預設值（預設使用 NVIDIA NIM 之 openai/gpt-oss-20b）
+# [English] Model name and system prompt configuration, defaulting to openai/gpt-oss-20b on NVIDIA NIM
+MODEL = openai_chat_model or "openai/gpt-oss-20b"
 SYSTEM_PROMPT = openai_system_prompt or DEFAULT_PROMPT
 
 # [正體中文] 單次對話允許的最大工具調用輪數，避免無限迴圈

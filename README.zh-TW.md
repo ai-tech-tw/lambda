@@ -8,12 +8,14 @@
 
 ---
 
-## 專案定位與狀態：功能已固定（Feature-Frozen）
+## 📌 專案狀態公告：本 Bot 功能已固定（Feature-Frozen）
 
 > [!NOTE]
 > **本專案（lambda）作為初學者學習 LLM Agent、Tool Calling 與 LINE Bot 整合的教學範例與簡潔樣板，目前功能已全數實作完畢並宣告固定（Feature-Frozen）。**
 >
-> 為了保持程式碼精簡、易讀易學，本 Bot 不會無限制增加額外複雜功能。若您希望探索更大型的 AI 模型代理、協議轉換或基礎設施，歡迎前往參與維護由本組織推動的 **[Nymph（寧芙）](https://github.com/web-tech-tw)** 專案！
+> 為了保持程式碼精簡、易讀易懂，本機器人後續將**不再增加額外功能**，適合作為新手探索 AI 代理的固定參考起點。
+>
+> 若您希望探索具備**工程知識庫檢索**、**多平台支援（Discord / LINE / MCP）**、**長脈絡架構諮詢**等更完整強大的 AI 顧問服務，誠摯推薦並邀請大家一起前往參與維護由本組織打造的 **[Nymph (寧芙)](https://github.com/web-tech-tw/nymph)** 專案！
 
 ---
 
@@ -32,7 +34,7 @@
 ## 主要特色
 
 - 🤖 **自主 Agent 工具呼叫迴圈**：具備多輪工具調用決策機制，支援原生 Function Call 與文字退避（fallback）建議。
-- ⚡ **多元模型支援（含 NVIDIA NIM 與 Nymph 閘道）**：可無縫串接 NVIDIA NIM 高效微服務、Nymph 免費試用端點或官方 OpenAI API。
+- ⚡ **預設整合 NVIDIA NIM**：免綁信用卡即可使用 NVIDIA Build 免費提供的優質開源模型（如 `openai/gpt-oss-20b`），亦相容官方 OpenAI API。
 - 🔍 **即時網路搜尋**：串接 [Tavily Search API](https://tavily.com/)，隨時掌握時事與最新資訊。
 - 📚 **學術論文檢索**：查詢 [arXiv](https://arxiv.org/) 文獻庫，支援標題、摘要、作者或分類搜尋並整理論文摘要。
 - 🌐 **網頁內容爬取與解析**：利用 Scrapy 與 Requests 擷取指定網頁的可讀內文，支援深度爬取與正規表示式（Regex）篩選。
@@ -76,7 +78,7 @@ flowchart TD
 
     subgraph ExternalServices["外部雲端服務 External Services"]
         LinePlatform["LINE Messaging API Platform"]
-        LLMServer["OpenAI / NVIDIA NIM / Nymph 閘道"]
+        LLMServer["NVIDIA NIM / OpenAI 模型 API"]
         TavilyAPI["Tavily Search API"]
         ArxivAPI["arXiv API"]
         Websites["目標網站 Web Pages"]
@@ -122,7 +124,7 @@ sequenceDiagram
     participant LINE as LINE 平台 LINE Platform
     participant Flask as Flask Webhook (/callback)
     participant Agent as 智慧代理 chat_with_ai
-    participant LLM as 模型服務 (NIM / Nymph / OpenAI)
+    participant LLM as 模型 API (NVIDIA NIM / OpenAI)
     participant Tools as 外部工具集 Tools
 
     User->>LINE: 發送問題（如「lambda 查詢最新的量子計算論文」）
@@ -159,10 +161,7 @@ sequenceDiagram
   powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
   ```
 - **LINE 官方帳號與 Messaging API Channel**：需在 [LINE Developers Console](https://developers.line.biz/) 建立 Messaging API 頻道取得憑證。
-- **模型供應商端點與金鑰（三擇一即可）**：
-  1. **NVIDIA NIM**（推薦體驗高性能模型）
-  2. **Nymph 社群免費試用端點**（免費用戶首選）
-  3. **官方 OpenAI API**
+- **OpenAI 相容之 API 金鑰**（參考下方免信用卡申請 NVIDIA NIM 說明）。
 - **Tavily API Key**（用於啟用網路搜尋功能，可在 [Tavily 官網](https://tavily.com/) 免費註冊申請）。
 
 ---
@@ -181,35 +180,31 @@ cp .env.sample .env
 | --- | --- | --- | --- |
 | `LINE_CHANNEL_ACCESS_TOKEN` | LINE Messaging API 的長期 Channel Access Token | 於 LINE Developers 後台取得 | **必填** |
 | `LINE_CHANNEL_SECRET` | LINE Messaging API 的 Channel Secret | 於 LINE Developers 後台取得 | **必填** |
-| `OPENAI_BASE_URL` | 模型 API 基底 URL（支援 NVIDIA NIM、Nymph、OpenAI） | `https://api.openai.com/v1` | 選填 |
-| `OPENAI_API_KEY` | 模型服務 API 金鑰 | `sk-...` / `nvapi-...` / `nymph ...` | **必填** |
-| `OPENAI_CHAT_MODEL` | 使用的模型名稱 | `gpt-3.5-turbo` / `openai/gpt-oss-20b` | 選填 |
+| `OPENAI_BASE_URL` | OpenAI 相容 API 基礎網址（預設為 NVIDIA NIM） | `https://integrate.api.nvidia.com/v1` | 選填 |
+| `OPENAI_API_KEY` | 模型服務 API 金鑰（如 NVIDIA NIM 之 `nvapi-...`） | `your_openai_api_key` | **必填** |
+| `OPENAI_CHAT_MODEL` | 模型名稱（預設推薦 `openai/gpt-oss-20b`） | `openai/gpt-oss-20b` | 選填 |
 | `OPENAI_SYSTEM_PROMPT` | 自訂系統提示詞（若未設定則使用內建預設提示詞） | `None` | 選填 |
-| `TAVILY_API_KEY` | Tavily 搜尋服務 API 金鑰 | `tvly-...` | **搜尋必填** |
+| `TAVILY_API_KEY` | Tavily 搜尋服務 API 金鑰 | `your_tavily_api_key` | **搜尋必填** |
 | `AGENT_TIMEOUT_SECONDS` | Agent 單次處理的最長逾時秒數 | `60` | 選填 |
 
-### 模型供應端配置範例
+---
 
-#### 方案一：使用 NVIDIA NIM（高效能推論微服務）
+### 💡 沒有 LLM API 金鑰嗎？（使用免費 NVIDIA NIM）
+
+沒有預算申請付費 LLM API？沒問題！
+
+[NVIDIA Build](https://build.nvidia.com/explore/discover) 提供了 100 多個模型，全部掛在免費的 OpenAI 相容 API 後面。只要用 Email 註冊，**完全不用信用卡**，開啟任意模型頁面，點擊 **Get API Key** 即可取得免費的 `nvapi-` 金鑰。
+
+在 NVIDIA NIM 上推薦使用 **`openai/gpt-oss-20b`**，開放權重、多語言推理能力強且延遲低 — 這也是本專案與 Nymph 在 `.env.sample` 中的預設值：
+
 ```ini
+OPENAI_API_KEY="nvapi-..."
 OPENAI_BASE_URL="https://integrate.api.nvidia.com/v1"
-OPENAI_API_KEY="nvapi-your-key-here"
 OPENAI_CHAT_MODEL="openai/gpt-oss-20b"
 ```
 
-#### 方案二：使用 Nymph 社群免費轉換閘道（學習與測試首選）
-```ini
-OPENAI_BASE_URL="https://web-tech.tw/recv/openai/v1"
-OPENAI_API_KEY="nymph zr3Pjc68z4bOtw=="
-OPENAI_CHAT_MODEL="auto"
-```
-
-#### 方案三：使用官方 OpenAI API
-```ini
-OPENAI_BASE_URL="https://api.openai.com/v1"
-OPENAI_API_KEY="sk-your-openai-api-key"
-OPENAI_CHAT_MODEL="gpt-3.5-turbo"
-```
+> [!TIP]
+> 若您已有官方 OpenAI API 帳號，亦可直接填入 `OPENAI_BASE_URL="https://api.openai.com/v1"`、`OPENAI_API_KEY="sk-..."` 與 `OPENAI_CHAT_MODEL="gpt-3.5-turbo"` 或 `gpt-4o-mini`。
 
 ---
 
@@ -276,7 +271,7 @@ lambda 內建的 5 項 Agent 工具皆集中於 `tools/` 目錄中：
 ```text
 lambda/
 ├── app.py              # Flask Webhook 應用程式入口與 LINE 事件處理
-├── config.py           # 集中管理環境變數與應用設定
+├── config.py           # 集中管理環境變數與應用設定（預設支援 NVIDIA NIM）
 ├── prompts.py          # AI 虛擬助理之預設系統提示詞（角色設定與工具規範）
 ├── clients/
 │   ├── line.py         # LINE Bot SDK 客戶端與 WebhookHandler 實例化
@@ -294,27 +289,24 @@ lambda/
 │   └── response.py     # 模型內部思維區塊（<think>）過濾器
 ├── pyproject.toml      # 專案依賴與套件設定（uv / PEP 621）
 ├── uv.lock             # 精確鎖定之依賴版本
-├── .env.sample         # 環境變數範例檔
+├── .env.sample         # 環境變數範例檔（預設使用 NVIDIA NIM）
 └── LICENSE             # MIT 開源授權條款
 ```
 
 ---
 
-## 🤝 共同維護與推廣 Nymph（Co-maintaining Nymph）
+## 🌟 推廣與共同維護：Nymph (寧芙) 技術顧問生態
 
-**lambda** 的誕生受惠於臺灣網際網路技術推廣組織（Web-Tech-TW / AI-Tech-TW）所推動的 **[Nymph（寧芙）](https://github.com/web-tech-tw)** 開源生態。
+如果您覺得 lambda 很有趣，或者想尋找更完整、能直接應用於真實團隊工程開發的 AI 顧問系統，非常歡迎認識並一起加入維護 **[Nymph (寧芙)](https://github.com/web-tech-tw/nymph)**！
 
 ### 什麼是 Nymph？
-Nymph 是一個由社群驅動的智慧技術服務平台與模型中繼轉接基礎建設。為降低廣大新手與開發者學習 AI 的經濟門檻，Nymph 免費提供相容 OpenAI 協定的轉換閘道，背後更整合了 **NVIDIA NIM** 等強大的推論微服務技術，讓大家不花一毛錢就能體驗業界頂尖的模型能力。
+**Nymph (寧芙)** 是一個由社群驅動的資深技術顧問智慧體服務，由臺灣網際網路技術推廣組織（Web Tech TW）營運與維護，專為開發者提供專業、深入且具脈絡的系統架構諮詢、除錯指引與工程經驗檢索。
 
-### 歡迎一起加入維護 Nymph！
-由於 **lambda 本身的功能已經固定**，所有進一步的後端模型支援、負載平衡、轉換中繼與微服務開發，都會在 Nymph 相關專案中持續演進！
+- 🚀 **多平台開箱即用**：支援在 [Discord 伺服器](https://discord.com/oauth2/authorize?client_id=921702227016560690) 與 [LINE 官方帳號](https://line.me/R/ti/p/@336jwweq) 中直接對話諮詢。
+- 🔌 **支援 Model Context Protocol (MCP)**：可透過遠端 MCP 協定，將 Nymph 智慧體無縫掛載進 Cursor、Antigravity、Claude Code/Desktop 或 Codex 等個人開發工具中，直接調用社群沉澱的歷年架構決策與除錯知識庫。
+- 🤝 **社群開源驅動**：歡迎前往 **[web-tech-tw/nymph](https://github.com/web-tech-tw/nymph)** 參與貢獻程式碼、回報 Issue 或提出新想法！
 
-如果您想挑戰更有深度的開源專案，歡迎一同加入維護：
-- 🌐 **[ai-tech-tw/ironnect](https://github.com/ai-tech-tw/ironnect)**：RESTful LLM 服務閘道原始碼（負責各家模型端點轉換與代理）。
-- 🛠️ **[web-tech-tw/nymph-stack](https://github.com/web-tech-tw/nymph-stack)**：Nymph Infrastructure as Code (IaC) 部署與服務調度堆疊。
-- 🧪 **[線上體驗端點](https://ai.web-tech.tw/openai)**：免安裝直接在線上體驗 Nymph 提供的 AI 能力。
-- 💬 **[加入 LINE 社群 ✨](https://web-tech.tw/ai)**：與社群開發者們共同交流、回報建議與參與開發！
+> 由於 **lambda 的功能已正式固定**，所有進階的技術顧問功能、社群知識庫整合與跨平台生態都會在 Nymph 專案中持續發展，期待與大家在 Nymph 專案中相遇！
 
 ---
 

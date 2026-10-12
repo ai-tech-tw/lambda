@@ -43,15 +43,15 @@ line_channel_secret = getenv("LINE_CHANNEL_SECRET")
 # - Official OpenAI: https://api.openai.com/v1
 # - NVIDIA NIM: https://integrate.api.nvidia.com/v1
 # - Nymph Community Gateway: https://web-tech.tw/recv/openai/v1
-openai_base_url = getenv("OPENAI_BASE_URL")
+openai_base_url = getenv("OPENAI_BASE_URL", "https://integrate.api.nvidia.com/v1")
 
-# [正體中文] 模型供應商的 API 金鑰（OpenAI Key、NVIDIA NIM nvapi-...、或 Nymph 試用憑證）
-# [English] API key for authenticating with the model provider (OpenAI key, NVIDIA NIM nvapi key, or Nymph trial token)
+# [正體中文] 模型供應商的 API 金鑰（如 NVIDIA NIM nvapi-... 或 OpenAI 金鑰）
+# [English] API key for authenticating with the model provider (e.g. NVIDIA NIM nvapi key, OpenAI key)
 openai_api_key = getenv("OPENAI_API_KEY")
 
-# [正體中文] 使用的對話模型名稱（例如 gpt-3.5-turbo、openai/gpt-oss-20b、meta/llama-3.3-70b-instruct、auto 等）
-# [English] Name of the chat completion model to use (e.g., gpt-3.5-turbo, openai/gpt-oss-20b, auto)
-openai_chat_model = getenv("OPENAI_CHAT_MODEL")
+# [正體中文] 使用的對話模型名稱（預設為 NVIDIA NIM 之 openai/gpt-oss-20b）
+# [English] Name of the chat completion model to use (defaults to openai/gpt-oss-20b)
+openai_chat_model = getenv("OPENAI_CHAT_MODEL", "openai/gpt-oss-20b")
 
 # [正體中文] 自訂系統提示詞覆寫值（若未設定則在 prompts.py 中使用預設提示詞）
 # [English] Optional custom system prompt override (defaults to DEFAULT_PROMPT if unset)
