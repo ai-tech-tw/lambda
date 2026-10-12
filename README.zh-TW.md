@@ -237,6 +237,18 @@ uv run flask run --debug --reload
 uv run gunicorn -w 4 app:app
 ```
 
+### 3. Docker 容器化執行（Docker）
+
+使用 Docker 快速建置並運行容器化服務：
+
+```bash
+# 建置 Docker 映像檔
+docker build -t lambda .
+
+# 載入 .env 環境變數並啟動容器（對外監聽 8000 埠）
+docker run --env-file .env -p 8000:8000 lambda
+```
+
 ---
 
 ## LINE Webhook 設定說明
@@ -270,6 +282,11 @@ lambda 內建的 5 項 Agent 工具皆集中於 `tools/` 目錄中：
 
 ```text
 lambda/
+├── .github/
+│   └── workflows/
+│       └── main.yml    # GitHub Actions CI/CD（語法檢查、建置與發布 Docker 映像檔）
+├── Dockerfile          # 容器映像檔建置檔（Python 3.14 + uv + Gunicorn）
+├── .dockerignore       # Docker 忽略檔案清單
 ├── app.py              # Flask Webhook 應用程式入口與 LINE 事件處理
 ├── config.py           # 集中管理環境變數與應用設定（預設支援 NVIDIA NIM）
 ├── prompts.py          # AI 虛擬助理之預設系統提示詞（角色設定與工具規範）

@@ -237,6 +237,18 @@ Run with the high-performance Gunicorn WSGI server:
 uv run gunicorn -w 4 app:app
 ```
 
+### 3. Docker Container
+
+Build and run using Docker:
+
+```bash
+# Build Docker image
+docker build -t lambda .
+
+# Run container with environment file (listens on port 8000)
+docker run --env-file .env -p 8000:8000 lambda
+```
+
 ---
 
 ## LINE Webhook Configuration
@@ -270,6 +282,11 @@ lambda's built-in tools are organized in the `tools/` directory:
 
 ```text
 lambda/
+├── .github/
+│   └── workflows/
+│       └── main.yml    # GitHub Actions CI/CD (lint, build & publish Docker image)
+├── Dockerfile          # Multi-architecture container build definition (Python 3.14 + uv + Gunicorn)
+├── .dockerignore       # Docker build exclusions
 ├── app.py              # Flask webhook endpoint and LINE event handler
 ├── config.py           # Centralized configuration and environment loading (defaults to NVIDIA NIM)
 ├── prompts.py          # AI agent default system prompt and persona
