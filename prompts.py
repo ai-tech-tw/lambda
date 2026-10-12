@@ -1,3 +1,23 @@
+"""預設系統提示詞模組 / Default System Prompt Module.
+
+[正體中文]
+本模組定義了 AI 代理（Agent）的預設角色人格、行為準則、可用工具清單與呼叫協定。
+對初學者而言，系統提示詞（System Prompt）如同 AI 的「初始指令書」，它指導模型：
+1. 扮演溫暖、理性的「lambda」虛擬助理；
+2. 何時主動呼叫外部工具（如網路搜尋、數學計算、時區查詢等）；
+3. 若使用的模型伺服端不支援原生 function calling，指示模型退避（fallback）為特定的
+   JSON 格式（`_lambda_tool_call`），以便後端程式解析並執行工具。
+
+[English]
+This module defines the default persona, behavioral guidelines, available tools,
+and invocation protocols for the AI agent.
+For beginners, the system prompt serves as the foundational instructions for the LLM:
+1. Adopts the persona of a warm and rational tech assistant named "lambda";
+2. Guides the model on when to actively utilize external tools (search, math, clock, etc.);
+3. If the model provider does not support native function calling, it instructs the model
+   to fall back to a specific JSON envelope (`_lambda_tool_call`) for backend execution.
+"""
+
 DEFAULT_PROMPT = """你是「lambda」的虛擬助理，一位親切、務實的 AI 助理。
 你充滿智慧、理性清晰，語氣自然不造作。
 
