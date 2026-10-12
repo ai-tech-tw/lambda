@@ -35,6 +35,106 @@ This project serves as an accessible, beginner-friendly starter for learning **L
 
 ---
 
+## Architecture & Workflow
+
+### 1. System Architecture
+
+```mermaid
+flowchart TD
+    subgraph Client["Client"]
+        User["User"]
+        LineApp["LINE Mobile/Desktop App"]
+    end
+
+    subgraph LambdaServer["Lambda Server (Flask App)"]
+        Webhook["Webhook Endpoint /callback"]
+        VerifySign{"Verify Signature"}
+        FilterMsg{"Check Trigger (DM or 'lambda')"}
+        AgentLoop["AI Agent Loop (chat_with_ai)"]
+        ModelDecision{"Model Decision (Tools needed?)"}
+        ToolDispatcher["Tool Dispatcher (call_tool)"]
+        ResponseClean["Text Sanitization (strip_thinking & strip_markdown)"]
+
+        subgraph ToolBox["Built-in Tools"]
+            ToolClock["Timezone Clock (current_time)"]
+            ToolCalc["Safe Calculator (evaluate_expression)"]
+            ToolSearch["Web Search (perform_search)"]
+            ToolArxiv["Paper Search (search_papers_dataframe)"]
+            ToolFetch["Web Scraper (fetch_content)"]
+        end
+    end
+
+    subgraph ExternalServices["External Cloud Services"]
+        LinePlatform["LINE Messaging API Platform"]
+        LLMServer["OpenAI / Compatible Endpoint"]
+        TavilyAPI["Tavily Search API"]
+        ArxivAPI["arXiv API"]
+        Websites["Target Webpages"]
+    end
+
+    User -->|"Sends message"| LineApp
+    LineApp -->|"Webhook event"| LinePlatform
+    LinePlatform -->|"POST /callback"| Webhook
+    Webhook --> VerifySign
+    VerifySign -->|"Valid"| FilterMsg
+    VerifySign -->|"Invalid"| Abort["HTTP 400 Bad Request"]
+    FilterMsg -->|"Trigger"| AgentLoop
+    FilterMsg -->|"Ignore"| End1["Ignore message"]
+
+    AgentLoop -->|"Query + TOOLS schemas"| LLMServer
+    LLMServer -->|"Output"| ModelDecision
+    ModelDecision -->|"Invoke function_call"| ToolDispatcher
+    ToolDispatcher --> ToolClock
+    ToolDispatcher --> ToolCalc
+    ToolDispatcher --> ToolSearch
+    ToolDispatcher --> ToolArxiv
+    ToolDispatcher --> ToolFetch
+
+    ToolSearch <-->|"Search query"| TavilyAPI
+    ToolArxiv <-->|"Paper query"| ArxivAPI
+    ToolFetch <-->|"Scrape content"| Websites
+
+    ToolDispatcher -->|"Tool output string"| AgentLoop
+    AgentLoop -->|"Submit tool outputs"| LLMServer
+
+    ModelDecision -->|"Final text answer"| ResponseClean
+    ResponseClean -->|"reply_message"| LinePlatform
+    LinePlatform -->|"Push reply"| LineApp
+    LineApp -->|"Deliver message"| User
+```
+
+### 2. Message & Tool-Calling Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User
+    participant LINE as LINE Platform
+    participant Flask as Flask Webhook (/callback)
+    participant Agent as AI Agent (chat_with_ai)
+    participant LLM as OpenAI Model API
+    participant Tools as Built-in Tools
+
+    User->>LINE: Send message (e.g. "lambda search latest quantum computing papers")
+    LINE->>Flask: POST /callback (with X-Line-Signature)
+    Flask->>Flask: Verify signature & validate trigger
+    Flask->>Agent: Invoke chat_with_ai(user_text)
+    Agent->>LLM: Send user query + TOOLS schemas
+    loop Multi-turn Tool Calling Loop (Up to 10 rounds)
+        LLM-->>Agent: Return function_call (e.g. search_papers_dataframe)
+        Agent->>Tools: Call call_tool(name, args)
+        Tools-->>Agent: Return tool string output
+        Agent->>LLM: Submit function_call_output for next step
+    end
+    LLM-->>Agent: Produce final text answer
+    Agent-->>Flask: Return AgentResponse
+    Flask->>Flask: strip_thinking & strip_markdown
+    Flask->>LINE: line_bot_api.reply_message(...)
+    LINE-->>User: Deliver clean formatted response
+```
+
+---
+
 ## Prerequisites
 
 Before getting started, make sure you have the following installed on your system:
